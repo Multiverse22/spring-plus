@@ -1,10 +1,13 @@
 package org.example.expert.domain.todo.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
+import org.example.expert.domain.todo.dto.request.getTodosRequestDto;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
@@ -47,10 +50,9 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size) {
+    public Page<TodoResponse> getTodos(int page, int size,getTodosRequestDto requestDto) {
         Pageable pageable = PageRequest.of(page - 1, size);
-
-        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
+        Page<Todo> todos = todosCheck(pageable,requestDto);
 
         return todos.map(todo -> new TodoResponse(
                 todo.getId(),
@@ -61,6 +63,31 @@ public class TodoService {
                 todo.getCreatedAt(),
                 todo.getModifiedAt()
         ));
+    }
+    public Page<Todo> todosCheck(Pageable pageable,getTodosRequestDto requestDto) {
+        /*
+        기간의 시작과 끝이 둘다 있을때
+        기간시작일이 끝보다 느릴수 없고
+        기간끝나는일이 시작일보다 빠를 수는 없다.
+        */
+        if(requestDto.getEndDate()!=null&&requestDto.getStartDate()!=null) {
+            if(requestDto.getStartDate().isAfter(requestDto.getEndDate())) {
+                throw new InvalidRequestException("Start date cannot be after end date");
+            }
+            if(requestDto.getEndDate().isBefore(requestDto.getStartDate())) {
+                throw new InvalidRequestException("End date cannot be before start date");
+            }
+            if(requestDto.getStartDate().equals(requestDto.getEndDate())) {
+                throw new InvalidRequestException("start date cannot equal end date");
+            }
+        }
+        Page<Todo> todos = todoRepository.findAllByWeatherAndStartDateAndEndDateOrderByModifiedAtDesc(
+                pageable,
+                requestDto.getStartDate(),
+                requestDto.getEndDate(),
+                requestDto.getWeather()
+        );
+        return todos;
     }
 
     public TodoResponse getTodo(long todoId) {
