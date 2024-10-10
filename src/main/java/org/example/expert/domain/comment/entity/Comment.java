@@ -11,6 +11,7 @@ import org.hibernate.annotations.BatchSize;
 @Getter
 @Entity
 @NoArgsConstructor
+@BatchSize(size = 10)
 @Table(name = "comments")
 public class Comment extends Timestamped {
 
