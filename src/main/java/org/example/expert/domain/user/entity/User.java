@@ -44,8 +44,13 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 
+    public User(Long id, String email) {
+        this.id = id;
+        this.email = email;
+    }
+
     public static User fromAuthUser(AuthUser authUser) {
-        return new User(authUser.getId(), authUser.getEmail(), authUser.getUserRole());
+        return new User(authUser.getId(), authUser.getEmail());
     }
 
     public void changePassword(String password) {
