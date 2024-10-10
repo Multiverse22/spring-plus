@@ -46,7 +46,15 @@ fork해서 받아온 코드를 기반으로 여러 과제를 수행했습니다!
 ## 강화된 기능
 
 JPQL을 활용해 여러개의 조건을 포함한 쿼리문을 작성할 수 있다. : 할 일을 검색할때 작성 할때의 날씨와 수정일을 기준으로 검색 할 수 있고 각 조건들은 있을 수 도 없을 수 도 있습니다.
+![image](https://github.com/user-attachments/assets/48d2fbf6-e5f3-4b70-8cfe-bcf536553cff)
 
 QueryDSL을 활용해 쿼리를 작성할 수 있다. : 여러 조건을 포함한 QueryDSL 코드를 작성 해 검색기능의 쿼리 최적화 및 타입 안정성을 챙길 수 있다.
+![image](https://github.com/user-attachments/assets/859f18a5-4776-4812-88ef-d7a57da66128)
 
 N+1 문제를 해결하는 코드를 작성 할 수 있다. : BatchSize를 활용해 N+1문제를 해결할 수 있다.
+![image](https://github.com/user-attachments/assets/3b2de8f3-f32d-4bcb-9d7e-d27928f80a06)
+![image](https://github.com/user-attachments/assets/86b78d98-a802-4142-92b5-ed655653a976)
+
+
+
+
