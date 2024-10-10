@@ -11,6 +11,7 @@ import org.example.expert.domain.todo.dto.request.getTodosRequestDto;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
 import org.example.expert.domain.todo.entity.Todo;
+import org.example.expert.domain.todo.repository.TodoQueryRepository;
 import org.example.expert.domain.todo.repository.TodoRepository;
 import org.example.expert.domain.user.dto.response.UserResponse;
 import org.example.expert.domain.user.entity.User;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,6 +30,7 @@ public class TodoService {
 
     private final TodoRepository todoRepository;
     private final WeatherClient weatherClient;
+    private final TodoQueryRepository todoQueryRepository;
     @Transactional
     public TodoSaveResponse saveTodo(AuthUser authUser, TodoSaveRequest todoSaveRequest) {
         User user = User.fromAuthUser(authUser);
@@ -50,21 +54,13 @@ public class TodoService {
         );
     }
 
-    public Page<TodoResponse> getTodos(int page, int size,getTodosRequestDto requestDto) {
+    public List<TodoResponse> getTodos(int page, int size, getTodosRequestDto requestDto) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Todo> todos = todosCheck(pageable,requestDto);
+        List<TodoResponse> todos = todosCheck(pageable,requestDto);
 
-        return todos.map(todo -> new TodoResponse(
-                todo.getId(),
-                todo.getTitle(),
-                todo.getContents(),
-                todo.getWeather(),
-                new UserResponse(todo.getUser().getId(), todo.getUser().getEmail()),
-                todo.getCreatedAt(),
-                todo.getModifiedAt()
-        ));
+        return todos;
     }
-    public Page<Todo> todosCheck(Pageable pageable,getTodosRequestDto requestDto) {
+    public List<TodoResponse> todosCheck(Pageable pageable,getTodosRequestDto requestDto) {
         /*
         기간의 시작과 끝이 둘다 있을때
         기간시작일이 끝보다 느릴수 없고
@@ -81,13 +77,10 @@ public class TodoService {
                 throw new InvalidRequestException("start date cannot equal end date");
             }
         }
-        Page<Todo> todos = todoRepository.findAllByWeatherAndStartDateAndEndDateOrderByModifiedAtDesc(
-                pageable,
-                requestDto.getStartDate(),
-                requestDto.getEndDate(),
-                requestDto.getWeather()
-        );
-        return todos;
+        return todoQueryRepository.findAll(
+                requestDto.getStartDate()
+                ,requestDto.getEndDate()
+        , requestDto.getWeather(), pageable);
     }
 
     public TodoResponse getTodo(long todoId) {
